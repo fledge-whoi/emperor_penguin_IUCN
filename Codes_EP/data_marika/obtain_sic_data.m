@@ -101,7 +101,7 @@ for mod=[model]
         info_models(i,6)=colind;%1 if good indexes
 
     % Save the mat data
-    mfile = sprintf('%s/Codes_EP/Codes_Stef/mat_data/not_std/LE_%s_seaice_bis.mat', ordi, mod); %create the mat file name, data not standardized
+    mfile = sprintf('%s/Codes_EP/Codes_CMR/mat_data/not_std/LE_%s_seaice_bis.mat', ordi, mod); %create the mat file name, data not standardized
     save(mfile, 'ENS');
     i=i+1;
     
@@ -119,7 +119,7 @@ end %model
 % from 2006 CESM2-LE).
 
 
-load(sprintf('%s/Codes_EP/Codes_Stef/mat_data/not_std/LE_CESM1-CAM5_seaice_bis.mat', ordi))
+load(sprintf('%s/Codes_EP/Codes_CMR/mat_data/not_std/LE_CESM1-CAM5_seaice_bis.mat', ordi))
 ENS_hist=ENS;
 nens_hist=40;
 nt_hist=181;
@@ -186,7 +186,7 @@ end %season
 
 
 % Save the mat data
-mfile = sprintf('/Users/aliceeparvier/Desktop/Codes_EP/Codes_Stef/mat_data/not_std/%s_seaice_bis.mat', mod); %create the mat file name
+mfile = sprintf('/Codes_EP/Codes_CMR/mat_data/not_std/%s_seaice_bis.mat', ordi, mod); %create the mat file name
 %save(mfile, 'ENS');
 
 
@@ -206,7 +206,7 @@ sigma_obs = zeros(66,4);
 y1979=1;
 y2007=29;
 for col=1:66
-    file=sprintf('%s/Codes_EP/Codes_Stef/SIC_obs_allcol/SIC_col%d.csv', ordi, col);
+    file=sprintf('%s/Codes_EP/Codes_CMR/SIC_obs_allcol/SIC_col%d.csv', ordi, col);
     SIC = readmatrix(file);
     mu_obs(col,:) = mean(SIC(y1979:y2007, :)); %mean on 1980-2007 for each season each colony
     sigma_obs(col,:) = std(SIC(y1979:y2007, :));
@@ -214,7 +214,7 @@ end
 
 
 % CESM2 LE
-load(sprintf('%s/Codes_EP/Codes_Stef/seaiceLE.mat', ordi);
+load(sprintf('%s/Codes_EP/Codes_CMR/seaiceLE.mat', ordi);
 ENS_old = ENS;
 
 % Create mat data
@@ -244,7 +244,7 @@ for s = 1:4 %season
     end %ens
 end %season
 
-mfile = sprintf('%s/Codes_EP/Codes_Stef/mat_data/LE_CESM2_seaice_std.mat', ordi); %create the mat file name
+mfile = sprintf('%s/Codes_EP/Codes_CMR/mat_data/LE_CESM2_seaice_std.mat', ordi); %create the mat file name
 %save(mfile, 'ENS');
 
 
@@ -259,7 +259,7 @@ y1979=1;
 y2007=29;
 
 for col=1:66
-    file=sprintf('%s/Codes_EP/Codes_Stef/SIC_obs_allcol/SIC_col%d.csv', ordi, col);
+    file=sprintf('%s/Codes_EP/Codes_CMR/SIC_obs_allcol/SIC_col%d.csv', ordi, col);
     SIC = readmatrix(file);
     mu_obs(col,:) = mean(SIC(y1979:y2007, :)); %mean on 1980-2007 for each season each colony
     sigma_obs(col,:) = std(SIC(y1979:y2007, :));
@@ -269,7 +269,7 @@ end
 for i=1 %models
 
     mod=model(i)
-    filename=sprintf('%s/Codes_EP/Codes_Stef/mat_data/not_std/%s_seaice_bis.mat', ordi, mod);
+    filename=sprintf('%s/Codes_EP/Codes_CMR/mat_data/not_std/%s_seaice_bis.mat', ordi, mod);
     load(filename)
 
     ENS_old = ENS;
@@ -301,7 +301,7 @@ for i=1 %models
     end %season
 
     % bis = mix between 500 and 850 km2
-    mfile = sprintf('%s/Codes_EP/Codes_Stef/mat_data/%s_seaice_std_bis.mat', ordi, mod); %create the mat file name
+    mfile = sprintf('%s/Codes_EP/Codes_CMR/mat_data/%s_seaice_std_bis.mat', ordi, mod); %create the mat file name
     save(mfile, 'ENS');
 
 end %model
@@ -316,20 +316,20 @@ end %model
  y2007=29;
 
  for col=1:66
-     file=sprintf('%s/Codes_EP/Codes_Stef/SIC_obs_allcol/SIC_col%d.csv', ordi, col);
+     file=sprintf('%s/Codes_EP/Codes_CMR/SIC_obs_allcol/SIC_col%d.csv', ordi, col);
      SIC = readmatrix(file);
      mu_obs(col,:) = mean(SIC(y1979:y2007, :)); %mean on 1980-2007 for each season each colony
      sigma_obs(col,:) = std(SIC(y1979:y2007, :));
  end
 
 
- load('%s/Codes_EP/Codes_Stef/mat_data/not_std/LE_CESM1-CAM5_seaice_bis.mat', ordi)
+ load('%s/Codes_EP/Codes_CMR/mat_data/not_std/LE_CESM1-CAM5_seaice_bis.mat', ordi)
  ENS_hist=ENS;
 
- load('%s/Codes_EP/Codes_Stef/mat_data/LE_CESM1-CAM5_seaice_std_bis.mat', ordi)
+ load('%s/Codes_EP/Codes_CMR/mat_data/LE_CESM1-CAM5_seaice_std_bis.mat', ordi)
  ENS_hist_std=ENS;
 
- filename=sprintf('%s/Codes_EP/Codes_Stef/mat_data/not_std/%s_seaice_bis.mat', ordi, mod);
+ filename=sprintf('%s/Codes_EP/Codes_CMR/mat_data/not_std/%s_seaice_bis.mat', ordi, mod);
  load(filename)
 
  ENS_old = ENS;
@@ -385,7 +385,7 @@ end %model
  end %season
 
  % bis = mix between 500 and 850 km2
- mfile = sprintf('%s/Codes_EP/Codes_Stef/mat_data/%s_seaice_std_bis.mat', ordi, mod); %create the mat file name
+ mfile = sprintf('%s/Codes_EP/Codes_CMR/mat_data/%s_seaice_std_bis.mat', ordi, mod); %create the mat file name
  save(mfile, 'ENS');
 
 
@@ -398,7 +398,7 @@ end %model
 
 %% Add 20 years to the CESM1 model so that it starts in 1900 (data from 1900 to 1919 will be that of 1920-1940)
 
-load(sprintf("%s/Codes_EP/Codes_Stef/mat_data/LE_CESM1-CAM5_seaice_std_bis.mat", ordi));
+load(sprintf("%s/Codes_EP/Codes_CMR/mat_data/LE_CESM1-CAM5_seaice_std_bis.mat", ordi));
 
 yearstart=1920;
 yearend=2100;
