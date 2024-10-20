@@ -1,8 +1,4 @@
-﻿ReadMe - Living with Uncertainty: Using Multi-Model
-
-Large Ensembles to Assess Emperor Penguin
-
-Extinction Risk for the IUCN Red List2024
+﻿ReadMe - Living with Uncertainty: Using Multi-Model Large Ensembles to Assess Emperor Penguin Extinction Risk for the IUCN Red List2024
 
 All the code used to produce data for this project can be found in the Codes\_EP folder.
 
