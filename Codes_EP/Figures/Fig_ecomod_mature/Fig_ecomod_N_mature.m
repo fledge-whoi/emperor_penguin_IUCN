@@ -64,7 +64,6 @@ fig = figure;
 set(fig, 'Position', [80, 0, 1300, 1100]);
 
 
-
 y_tot=zeros(4,1); %for the legend
 for m = [1:3] % Ecological model
     subplot(2,2,m)
@@ -180,107 +179,40 @@ for m = [1:3] % Ecological model
 end % ecological model
 
 
-% Panel D
+%% Panel D
 % Figure all ecological models
+
 subplot(2,2,4)
-nens=50;
-nsim=100;
 yearstart=1950;
 yearstop=2100;
 timePOP=1950:2100;
 nt=length(timePOP);
+y1950=length(1921:1950);
+% Import eco-ensemble results
 
-y2009 = length(yearstart:2009);
-
-% SIMULATIONS
-
-Ntot_3gathered = zeros(3*nens*nsim, nt);
-Xtot_3gathered = zeros(3*nens*nsim, nt);
-
-x2=1;
-
-    for m=[1 2 3]
-
-        e_mod=eco_mod(m)
-        if m==1 %CMR
-            time=51:201; %subset years
-            scenEXT=[1 2 4];
-        elseif m==2 %IPM
-            time=30:180;
-            %nt=180;
-            scenEXT=1;
-        else %SAT
-            time=42:192;
-            %nt=191;
-            scenEXT=1;
-        end
-
-        Ncol = zeros(nt, length(scenEXT)*nens*nsim);
-        Xcol = zeros(nt, length(scenEXT)*nens*nsim);
-        x=1;
-        
-        for scen=scenEXT % Extreme event scenario
-            
-            for ens = 1:nens
-
-                if m==1
-                    file_name = sprintf("%s/Codes_EP/N_mature_results_tot/N_results_%s/Ntot_CMR/LE_CESM2/Ntot_%s_LE_CESM2_ens%d_scen%d.txt", ordi, e_mod, e_mod, ens, scen);
-                elseif m==2
-                    file_name = sprintf("%s/Codes_EP/N_mature_results_tot/N_results_%s/Ntot_IPM/LE_CESM2/Ntot_%s_LE_CESM2_ens%d.txt", ordi, e_mod, e_mod, ens);
-                else %Sat
-                    file_name = sprintf("%s/Codes_EP/N_mature_results_tot/N_results_%s/Ntot_Sat/LE_CESM2/Ntot_%s_LE_CESM2_ens%d.txt", ordi, e_mod, e_mod, ens);
-                end
-                N = readmatrix(file_name); %(nt, nsim)
-
-                Ncol(:,x:x+nsim-1) = Ncol(:,x:x+nsim-1) + N(time,:);
-                x=x+nsim;
-            end %ens
-
-        end %scenEXT
-
-        if m==1
-            Ncol = Ncol(:, randi(3*nens*nsim, nens*nsim, 1));
-        end
-
-        Ncol = permute(Ncol, [2 1]); %(sim*ens, nt)
-
-        Ntot_3gathered(x2:(x2+nens*nsim-1), :) = Ncol;
-        x2=x2+(nens*nsim);
-
-    end %eco_mod
-
-Xtot_3gathered = (Ntot_3gathered - mean(Ntot_3gathered(:, y2009:y2009+10),2))./mean(Ntot_3gathered(:, y2009:y2009+10),2);
-
-Ntot_med=quantile(Ntot_3gathered, [0.025 0.5 0.975]);
-Xtot_med = quantile(Xtot_3gathered, [0.025 0.5 0.975]);
-
-% PLOT
-
-couleur = [0.3 0.3 0.6];
+%ens_results=readmatrix(sprintf('%s/Figures/Fig_ecomod_mature/ensamble_forecasts_slopeweights_v2.csv', ordi));
+ens_med = permute(ens_results(y1950:end,3), [2 1]);
+ens_inf = permute(ens_results(y1950:end,4), [2 1]);
+ens_sup = permute(ens_results(y1950:end,5), [2 1]);
 
 % Plot mean, 95% interval, internal variability
-
+couleur = [0.3 0.3 0.6];
 ttt = [timePOP, fliplr(timePOP)];
 
-inBetween = [Xtot_med(1,:), fliplr(Xtot_med(3,:))];
+inBetween = [ens_inf, fliplr(ens_sup)];
 f = fill(ttt, inBetween, couleur);
 set(f,'EdgeColor','none','FaceAlpha', 0.1)
 hold on
 
-% Plot 3 simulations
-plot(timePOP, Xtot_3gathered(randi(length(Xtot_3gathered(:,1)),3,1),:),'linewidth',1)
-
-hold on
-
 % Plot median and 95% quantiles
-y=plot(timePOP, Xtot_med(2,:),'-', 'color', couleur,'linewidth',7);
+y=plot(timePOP, ens_med,'-', 'color', couleur,'linewidth',7);
 y_tot(m)=y;
 hold on
-plot(timePOP,Xtot_med(1,:),'-','color', couleur,'linewidth',2)
+plot(timePOP, ens_inf,'-','color', couleur,'linewidth',2)
 hold on
-plot(timePOP, Xtot_med(3,:),'-','color', couleur,'linewidth',2)
+plot(timePOP, ens_sup,'-','color', couleur,'linewidth',2)
 
-obs=(dataOBSSAT_bilgecan(:,2)-mean(dataOBSSAT_bilgecan(:,2)))./mean(dataOBSSAT_bilgecan(:,2));
+obs=(dataOBSSAT_bilgecan(:,2)-mean(dataOBSSAT_bilgecan(:,2)))./mean(dataOBSSAT_bilgecan(:,2)) *100;
 yobs = plot(2009:2018, obs,'-k','linewidth',7);
 hold on
 
@@ -414,108 +346,38 @@ end % ecological model
 
 % Panel D
 % Figure all ecological models
+
 subplot(2,2,4)
-nens=50;
-nsim=100;
 yearstart=1921;
 yearstop=2100;
-timePOP=yearstart:yearstop;
+timePOP=1921:2100;
 nt=length(timePOP);
+% Import eco-ensemble results
 
-y2009 = length(yearstart:2009);
-
-% SIMULATIONS
-
-Ntot_3gathered = zeros(3*nens*nsim, nt);
-Xtot_3gathered = zeros(3*nens*nsim, nt);
-x2=1;
-
-    for m=[1 2 3]
-
-        e_mod=eco_mod(m)
-        if m==1 %CMR
-            time=22:201; %subset years
-            scenEXT=[1 2 4];
-        elseif m==2 %IPM 1921-2100
-            time=1:180;
-            %nt=180;
-            scenEXT=1;
-        else %SAT
-            time=13:192;
-            %nt=192;
-            scenEXT=1;
-        end
-
-        Ncol = zeros(nt, length(scenEXT)*nens*nsim);
-        Xcol = zeros(nt, length(scenEXT)*nens*nsim);
-        x=1;
-        
-        for scen=scenEXT % Extreme event scenario
-            
-            for ens = 1:nens
-
-                if m==1
-                    file_name = sprintf("%s/Codes_EP/N_mature_results_tot/N_results_%s/Ntot_CMR/LE_CESM2/Ntot_%s_LE_CESM2_ens%d_scen%d.txt", ordi, e_mod, e_mod, ens, scen);
-                elseif m==2
-                    file_name = sprintf("%s/Codes_EP/N_mature_results_tot/N_results_%s/Ntot_IPM/LE_CESM2/Ntot_%s_LE_CESM2_ens%d.txt", ordi, e_mod, e_mod, ens);
-                else %Sat
-                    file_name = sprintf("%s/Codes_EP/N_mature_results_tot/N_results_%s/Ntot_Sat/LE_CESM2/Ntot_%s_LE_CESM2_ens%d.txt", ordi, e_mod, e_mod, ens);
-                end
-                N = readmatrix(file_name); %(nt, nsim)
-
-                Ncol(:,x:x+nsim-1) = Ncol(:,x:x+nsim-1) + N(time,:);
-                Xcol = (Ncol - Ncol(y2009,:))./Ncol(y2009,:);
-                x=x+nsim;
-            end %ens
-
-        end %scenEXT
-
-        if m==1
-            Ncol = Ncol(:, randi(3*nens*nsim, nens*nsim, 1));
-            Xcol = Xcol(:, randi(3*nens*nsim, nens*nsim, 1));
-        end
-
-        Ncol = permute(Ncol, [2 1]); %(sim*ens, nt)
-        
-        Xcol = permute(Xcol, [2 1]); %(sim*ens, nt)
-
-        Ntot_3gathered(x2:(x2+nens*nsim-1), :) = Ncol;
-        Xtot_3gathered(x2:(x2+nens*nsim-1), :) = Xcol;
-        x2=x2+(nens*nsim);
-
-    end %eco_mod
-
-Ntot_med=quantile(Ntot_3gathered, [0.025 0.5 0.975]);
-Xtot_med=quantile(Xtot_3gathered, [0.025 0.5 0.975]);
-
-% PLOT
-
-
-couleur = [0.3 0.3 0.6];
+%ens_results=readmatrix(sprintf('%s/Figures/Fig_ecomod_mature/ensamble_forecasts_slopeweights_v2.csv', ordi));
+ens_med = permute(ens_results(:,3), [2 1]);
+ens_inf = permute(ens_results(:,4), [2 1]);
+ens_sup = permute(ens_results(:,5), [2 1]);
 
 % Plot mean, 95% interval, internal variability
-
+couleur = [0.3 0.3 0.6];
 ttt = [timePOP, fliplr(timePOP)];
 
-inBetween = [Xtot_med(1,:), fliplr(Xtot_med(3,:))];
+inBetween = [ens_inf, fliplr(ens_sup)];
 f = fill(ttt, inBetween, couleur);
 set(f,'EdgeColor','none','FaceAlpha', 0.1)
 hold on
 
-% Plot the ensembles (one ens = mean of 100 simulations)
-%plot(timePOP, Xtot(:,:),'color', couleur(6,:),'linewidth',1)
-
-hold on
-
 % Plot median and 95% quantiles
-y=plot(timePOP, Xtot_med(2,:),'-', 'color', couleur,'linewidth',7);
+y=plot(timePOP, ens_med,'-', 'color', couleur,'linewidth',7);
 y_tot(m)=y;
 hold on
-plot(timePOP,Xtot_med(1,:),'-','color', couleur,'linewidth',2)
+plot(timePOP, ens_inf,'-','color', couleur,'linewidth',2)
 hold on
-plot(timePOP, Xtot_med(3,:),'-','color', couleur,'linewidth',2)
+plot(timePOP, ens_sup,'-','color', couleur,'linewidth',2)
 
-%yobs = plot(2009:2018, dataOBSSAT_bilgecan(:,2), 'k','linewidth',7);
+obs=(dataOBSSAT_bilgecan(:,2)-mean(dataOBSSAT_bilgecan(:,2)))./mean(dataOBSSAT_bilgecan(:,2)) *100;
+yobs = plot(2009:2018, obs,'-k','linewidth',7);
 hold on
 
 fontsi = 20;
@@ -523,16 +385,10 @@ fontsi = 20;
 xlabel('Years', 'FontSize', fontsi, 'FontWeight', 'bold');
 ylabel('% change', 'FontSize', fontsi, 'FontWeight', 'bold');
 %ylim([0 300000]);
-title('Three models combined');
+title('Eco-ensemble');
 
 set(gca, 'FontSize', fontsi, 'FontWeight', 'bold');
 text(-0.2, 1.1, 'd', 'Units', 'normalized', 'FontSize', 24, 'FontWeight', 'bold');
-%print('Fig_ecomod_gathered', '-dpng', '-r300')
-
-%legend(yobs, 'Obs')
-
-
-
 
 %% Fig supp Hindcast ecomod relative change (1950)
 
@@ -691,125 +547,51 @@ end % ecological model
 
 
 % Panel D
-% Figure all ecological models
 subplot(2,2,4)
-nens=50;
-nsim=100;
 yearstart=1950;
 yearstop=2100;
 timePOP=1950:2100;
 nt=length(timePOP);
+y1950=length(1921:1950);
+% Import eco-ensemble results
 
-y2009 = length(yearstart:2009);
-
-% SIMULATIONS
-
-Ntot_3gathered = zeros(3*nens*nsim, nt);
-Xtot_3gathered = zeros(3*nens*nsim, nt);
-
-x2=1;
-
-    for m=[1 2 3]
-
-        e_mod=eco_mod(m)
-        if m==1 %CMR
-            time=51:201; %subset years
-            scenEXT=[1 2 4];
-        elseif m==2 %IPM
-            time=30:180;
-            %nt=180;
-            scenEXT=1;
-        else %SAT
-            time=42:192;
-            %nt=191;
-            scenEXT=1;
-        end
-
-        Ncol = zeros(nt, length(scenEXT)*nens*nsim);
-        Xcol = zeros(nt, length(scenEXT)*nens*nsim);
-        x=1;
-        
-        for scen=scenEXT % Extreme event scenario
-            
-            for ens = 1:nens
-
-                if m==1
-                    file_name = sprintf("%s/Codes_EP/N_mature_results_tot/N_results_%s/Ntot_CMR/LE_CESM2/Ntot_%s_LE_CESM2_ens%d_scen%d.txt", ordi, e_mod, e_mod, ens, scen);
-                elseif m==2
-                    file_name = sprintf("%s/Codes_EP/N_mature_results_tot/N_results_%s/Ntot_IPM/LE_CESM2/Ntot_%s_LE_CESM2_ens%d.txt", ordi, e_mod, e_mod, ens);
-                else %Sat
-                    file_name = sprintf("%s/Codes_EP/N_mature_results_tot/N_results_%s/Ntot_Sat/LE_CESM2/Ntot_%s_LE_CESM2_ens%d.txt", ordi, e_mod, e_mod, ens);
-                end
-                N = readmatrix(file_name); %(nt, nsim)
-
-                Ncol(:,x:x+nsim-1) = Ncol(:,x:x+nsim-1) + N(time,:);
-                x=x+nsim;
-            end %ens
-
-        end %scenEXT
-
-        
-
-        if m==1
-            Ncol = Ncol(:, randi(3*nens*nsim, nens*nsim, 1));
-        end
-
-        Xcol = (Ncol - mean(Ncol(y2009:y2009+10,:)))./mean(Ncol( y2009:y2009+10,:));
-
-        Ncol = permute(Ncol, [2 1]); %(sim*ens, nt)
-        Xcol=permute(Xcol, [2 1]);
-
-        Ntot_3gathered(x2:(x2+nens*nsim-1), :) = Ncol;
-        Xtot_3gathered(x2:(x2+nens*nsim-1), :) = Xcol;
-        x2=x2+(nens*nsim);
-
-    end %eco_mod
-
-Ntot_med=quantile(Ntot_3gathered, [0.025 0.5 0.975]);
-Xtot_med=quantile(Xtot_3gathered, [0.025 0.5 0.975]);
-
-% PLOT
-
-
-couleur = [0.3 0.3 0.6];
+%ens_results=readmatrix(sprintf('%s/Figures/Fig_ecomod_mature/ensamble_forecasts_slopeweights_v2.csv', ordi));
+ens_med = permute(ens_results(y1950:end,3), [2 1]);
+ens_inf = permute(ens_results(y1950:end,4), [2 1]);
+ens_sup = permute(ens_results(y1950:end,5), [2 1]);
 
 % Plot mean, 95% interval, internal variability
-
+couleur = [0.3 0.3 0.6];
 ttt = [timePOP, fliplr(timePOP)];
 
-inBetween = [Xtot_med(1,:), fliplr(Xtot_med(3,:))];
+inBetween = [ens_inf, fliplr(ens_sup)];
 f = fill(ttt, inBetween, couleur);
 set(f,'EdgeColor','none','FaceAlpha', 0.1)
 hold on
 
-% Plot the ensembles (one ens = mean of 100 simulations)
-plot(timePOP, Xtot_3gathered(randi(length(Xtot(:,1)),10,1),:),'linewidth',1)
-hold on
-
 % Plot median and 95% quantiles
-y=plot(timePOP, Xtot_med(2,:),'-', 'color', couleur,'linewidth',7);
+y=plot(timePOP, ens_med,'-', 'color', couleur,'linewidth',7);
 y_tot(m)=y;
 hold on
-plot(timePOP,Xtot_med(1,:),'-','color', couleur,'linewidth',2)
+plot(timePOP, ens_inf,'-','color', couleur,'linewidth',2)
 hold on
-plot(timePOP, Xtot_med(3,:),'-','color', couleur,'linewidth',2)
+plot(timePOP, ens_sup,'-','color', couleur,'linewidth',2)
 
-yobs = plot(2009:2018, obs, 'k','linewidth',5);
+obs=(dataOBSSAT_bilgecan(:,2)-mean(dataOBSSAT_bilgecan(:,2)))./mean(dataOBSSAT_bilgecan(:,2)) *100;
+yobs = plot(2009:2018, obs,'-k','linewidth',7);
 hold on
 
 fontsi = 20;
 
 xlabel('Years', 'FontSize', fontsi, 'FontWeight', 'bold');
 ylabel('% change', 'FontSize', fontsi, 'FontWeight', 'bold');
+%ylim([0 300000]);
+title('Eco-ensemble');
 
-title('Three models combined');
-ylim([-1 1]);
-    xlim([1950 2100]);
 set(gca, 'FontSize', fontsi, 'FontWeight', 'bold');
 text(-0.2, 1.1, 'd', 'Units', 'normalized', 'FontSize', 24, 'FontWeight', 'bold');
-%print('Fig_ecomod_gathered', '-dpng', '-r300')
 
-%legend(yobs, 'Obs')
+
 
 
 
