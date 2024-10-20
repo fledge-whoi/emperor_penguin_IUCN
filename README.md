@@ -1,8 +1,8 @@
 ﻿ReadMe - Living with Uncertainty: Using Multi-Model Large Ensembles to Assess Emperor Penguin Extinction Risk for the IUCN Red List2024
 
-All the code used to produce data for this project can be found in the Codes\_EP folder.
+All the codes used to produce data for this project can be found in the Codes_EP folder.
 
-Folder **Codes\_EP** contains:
+Folder **Codes_EP** contains:
 
 - **data\_marika** : sea ice data
 - **Codes\_CMR** : Codes to run CMR model
