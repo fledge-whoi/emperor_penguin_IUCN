@@ -1,6 +1,6 @@
 ﻿ReadMe - Living with Uncertainty: Using Multi-Model Large Ensembles to Assess Emperor Penguin Extinction Risk for the IUCN Red List2024
 
-All the codes used to produce data for this project can be found in the Codes_EP folder.
+All the codes used to produce data for this project can be found in the Codes_EP folder. You can find the codes to run the different ecological models, to run the metapopulation model, as well as all the codes used to produce figures.
 
 Folder **Codes_EP** contains:
 
