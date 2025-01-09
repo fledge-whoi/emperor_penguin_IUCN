@@ -83,10 +83,14 @@ Section “Mean of Ensembles” to study internal variability, calculates mean o
 # **Codes\_SAT**
 
 - **globalSAT\_new\_july.m** principal file to produce results, also code to project mean of ensembles
-- **params\_chains.csv** and **eps\_chains.csv** : posteriors given by Bilgecan Sen
+- **params\_chains.csv** and **eps\_chains.csv** : posteriors obtained by running *fit\_sat\_models.R*
 - **SIC\_NOW\_2009-2018.csv** file with observations for each colony (as a decadal mean)
 - **Obtain\_SIC\_proj\_data.m** file to format the climate data
-- **SIC\_proj\_trans\_total.mat** are the standardized data (with bilgecan method to have same mean and variance as observations)
+- **SIC\_proj\_trans\_total.mat** are the standardized data to have same mean and variance as observations between 2009 and 2018
+- **fit\_sat\_models.R** script to fit a bayesian hierarchical model and estimate parameters used in the SAT model
+- **lm5.stan** specification of the SAT model in STAN
+- **data\_env\_empe.rds** sea ice concentration data used in fitting the SAT model
+- **data\_pop\_empe.rds**, **colony\_attributes\_update.csv**, and **empe\_sites\_new.csv** various colony level information used in fitting the SAT model
 
 
 # **Metapop\_allmodel.m** 
