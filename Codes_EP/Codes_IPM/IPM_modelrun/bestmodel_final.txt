@@ -1,0 +1,199 @@
+
+model {
+    #****************************************
+    # Define priors
+    #****************************************
+
+    # Initial population size
+
+    n1 ~ dnorm(1500, 0.0005)T(0,)
+    N1[1] <- round(n1)
+
+    n2 ~ dnorm(770, 0.0005)T(0,)
+    N2[1] <- round(n2)
+
+    n3 ~ dnorm(1600, 0.0001)T(0,)
+    N3[1] <- round(n3)
+
+    n4 ~ dnorm(1700, 0.00005)T(0,)
+    N4[1] <- round(n4)
+
+    n5 ~ dnorm(1800, 0.00005)T(0,)
+    N5[1] <- round(n5)
+
+    nbreed ~ dnorm(3431, 0.005)T(0,)
+    Nbreed[1] <- round(nbreed)
+
+    nnonbreed ~ dnorm(1700,0.001)T(0,)
+    Nonbreed[1] <- round(nnonbreed)
+
+    ## survival juvenile
+    mu.phi1 ~ dunif(0.5, 0.8)
+
+    ## adult survival, with env effect
+    beta0.phia ~ dunif(2, 3.5) # prior for intercept
+    betasst.phia ~ dunif(-2, 2) # prior for slope
+    betawind.phia ~ dunif(-2, 2) # prior for slope
+
+    ## probability of returning to breed, with env effect
+    beta0.breed ~ dnorm(1.25, 6.25)T(0.75, 1.75) # prior for intercept
+    betavwind.breed ~ dunif(-2, 2) # prior for slope
+
+    ## fecundity, with env effect
+    beta0.fec ~ dunif(-0.5, 1) # prior for intercept
+    betanow.fec ~ dunif(-2, 2) # prior for slope
+
+    ## recruiting
+    recr5 <- 0.22
+    recr6 <- 0.32
+
+    ## resight adults
+    mu.p ~ dunif(0,1)
+
+    ## process error
+    sigma2.phia ~  dnorm(0, 1)T(0,0.2)
+    tau.phia <- pow(sigma2.phia, -1)
+    sigma2.fec ~  dnorm(0, 1)T(0,)
+    tau.fec <- pow(sigma2.fec, -1)
+    sigma2.breed ~  dnorm(0, 1)T(0, 0.2)##T(0,)
+    tau.breed <- pow(sigma2.breed, -1)
+
+    for (t in 1:((Time_counts-1)))
+    {
+    # adult survival
+    logit(phia[t]) <- lphia.lim[t]
+    lphia.lim[t] <- min(999, max(-999,lphia[t]))
+    lphia[t] <- beta0.phia +
+                betasst.phia*sst_nonbreed[t] +
+                betawind.phia*wind_rear[t] +
+                eps.phia[t]
+    eps.phia[t] ~ dnorm(0, tau.phia)
+
+    # juvenile survival
+    phi1[t] <- mu.phi1
+
+    ## breeding probability
+    logit(pbreed_B[t]) <- lpbreed_B.lim[t]
+    lpbreed_B.lim[t] <- min(999, max(-999,lpbreed_B[t]))
+    lpbreed_B[t] <- beta0.breed +
+                    betavwind.breed*vwind_rear[t] +
+                    eps.breed[t]
+    eps.breed[t] ~ dnorm(0, tau.breed)
+    }
+
+    for (t in 1:(Time_counts))
+    {
+    # productivity
+    logit(fec[t]) <- lfec.lim[t]
+    lfec.lim[t] <- min(999, max(-999,lfec[t]))
+    lfec[t] <- beta0.fec +
+               betanow.fec*now_rear[t] +
+               eps.fec[t]
+    eps.fec[t] ~ dnorm(0, tau.fec)
+    }
+
+    for (t in 1:(n.occasions-1))
+    {
+    # resighting, accounting for data loss
+    p[t] <- data_loss[t+1]*mu.p ## check indexing
+    } #t
+
+    #****************************************
+    # Likelihood for each data set
+    #****************************************
+
+    #****************************************
+    # Likelihood for population population count data
+    #****************************************
+
+    #****************************************
+    # System process
+    #****************************************
+
+    for (t in 2:(Time_counts))
+    {
+    # age0, t1 (fledglings)
+    # 0.5*Nbreed[t]*fec[t]
+
+    #age1
+    ##N1[t] <- round(phi1[t-1]*(0.5*Nbreed[t-1]*fec[t-1]))
+    mean1[t] <- round(0.5*Nbreed[t-1]*fec[t-1]*phi1[t-1])
+    N1[t] ~ dpois(mean1[t])
+
+    #age2
+    ##N2[t] <- round(phia[t-1]*(N1[t-1]))
+    N2[t] ~ dbin(phia[t-1],N1[t-1])
+
+    #age3
+    ##N3[t] <- round(phia[t-1]*(N2[t-1]))
+    N3[t] ~ dbin(phia[t-1],N2[t-1])
+
+    #age4 (prebreeders)
+    ##N4[t] <- round(phia[t-1]*N3[t-1])
+    N4[t] ~ dbin(phia[t-1],N3[t-1])
+
+    #age5 (pre breeders)
+    ##N5[t] <- round(phia[t-1]*((1-recr5)*N4[t-1] + (1-recr6)*N5[t-1]))
+    mean5[t] <- round(((1-recr5)*N4[t-1] + (1-recr6)*N5[t-1]))
+    N5[t] ~ dbin(phia[t-1], mean5[t])
+
+    #breeding adults
+    meanbreed[t] <-  round(recr5*N4[t-1] + recr6*N5[t-1] + pbreed_B[t-1]*Nbreed[t-1] +
+                           pbreed_B[t-1]*Nonbreed[t-1])
+    Nbreed[t] ~ dbin(phia[t-1], meanbreed[t])
+
+    #nonbreeding adults
+    meannonbreed[t] <- round(Nbreed[t-1]*(1-pbreed_B[t-1]) + Nonbreed[t-1]*(1-pbreed_B[t-1]))
+    Nonbreed[t] ~ dbin(phia[t-1], meannonbreed[t])
+    }
+
+    for (t in 1:(Time_counts))
+    {
+    Ntot[t] <- Nbreed[t] + Nonbreed[t] + N5[t] + N4[t] + N3[t] + N2[t] + N1[t]
+    } #t
+
+    #******************************
+    # Observation process
+    #******************************
+
+    for (t in 1:Time_counts){
+    Ka[t] ~ dpois(Nbreed[t])
+    }#t
+
+    #****************************************
+    # Likelihood for capture-recapture data:  m-array
+    #****************************************
+
+    # Define the multinomial likelihood
+    for (t in 1:(n.occasions-1)){
+    marr[t,1:n.occasions] ~ dmulti(pr[t, ],r[t])
+    }
+
+    # Main diagonal
+    for (t in 1:(n.occasions-1)){
+    q[t] <- 1-p[t] # Probability of non-recapture
+    pr[t,t] <- phia[t]*p[t] ## SHOULD ALSO ACCOUNT FOR PBREED?!
+    # Above main diagonal
+    for (j in (t+1):(n.occasions-1)){
+    pr[t,j] <- prod(phia[t:j])*prod(q[t:(j-1)])*p[j]
+    } # j
+    # Below main diagonal
+    for (j in 1:(t-1)){
+    pr[t,j] <- 0
+    } # j
+    } # t
+    # Last column: probability of non-recapture
+    for (t in 1:(n.occasions-1)){
+    pr[t,n.occasions] <- 1-sum(pr[t,1:(n.occasions-1)])
+    } # t
+
+    #**************************************************
+    # Likelihood for reproductive success data
+    #**************************************************
+    for (t in 1:(Time_counts))
+    {
+     ## fecundity, binomial
+     Kp[t] ~ dbin(fec[t],Ka[t])
+    }#t
+}#end model
+
